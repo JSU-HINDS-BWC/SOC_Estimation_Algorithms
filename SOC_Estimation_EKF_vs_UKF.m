@@ -1,5 +1,3 @@
-% SOC_Estimation_Robust.m - Advanced Battery State of Charge Estimation
-
 function SOC_Estimation_Robust()
     % Clear command window and workspace
     clc;
@@ -73,16 +71,13 @@ function [soc, P] = extendedKalmanFilter(params, time, current, voltage)
         
         for k = 2:n
             delta_t = time(k) - time(k-1);
-            
-            % Prediction Step
             soc_pred = soc(k-1) - (current(k-1)*delta_t)/(params.Q_nom*3600);
             P_pred = P + Q;
             
             % Linearize measurement model
-            H = 0.7 + 0.2*soc_pred; % Jacobian of nonlinear OCV
+            H = 0.7 + 0.2*soc_pred;
             V_pred = params.V_ocv(soc_pred) - current(k-1)*params.R0;
-            
-            % Update Step
+           
             K = P_pred*H/(H*P_pred*H + R); % Kalman Gain
             soc(k) = soc_pred + K*(voltage(k) - V_pred);
             P = (1 - K*H)*P_pred;
@@ -103,27 +98,25 @@ function soc = unscentedKalmanFilter(params, time, current, voltage)
         soc(1) = params.SOC_init;
         
         % UKF Parameters
-        Q = 1e-5;          % Process noise covariance
-        R = 0.01;          % Measurement noise covariance
-        P = 0.1;           % Initial error covariance
-        alpha = 1e-3;      % Spread of sigma points
-        kappa = 0;         % Secondary scaling parameter
-        beta = 2;          % Optimal for Gaussian
+        Q = 1e-5;          
+        R = 0.01;          
+        P = 0.1;           
+        alpha = 1e-3;      
+        kappa = 0;         
+        beta = 2;          
         
-        L = 1;             % State dimension
+        L = 1;             
         lambda = alpha^2*(L + kappa) - L;
-        Wm = [lambda/(L+lambda) 0.5/(L+lambda)*ones(1,2*L)]; % Weights for mean
+        Wm = [lambda/(L+lambda) 0.5/(L+lambda)*ones(1,2*L)]; 
         Wc = Wm;
-        Wc(1) = Wc(1) + (1-alpha^2+beta); % Weights for covariance
+        Wc(1) = Wc(1) + (1-alpha^2+beta); 
         
         for k = 2:n
             delta_t = time(k) - time(k-1);
             
-            % Generate sigma points
             sigma = sqrt((L+lambda)*P);
             X = [soc(k-1) soc(k-1)-sigma soc(k-1)+sigma];
             
-            % Time Update (Prediction)
             X_pred = X - (current(k-1)*delta_t)/(params.Q_nom*3600);
             soc_pred = sum(Wm .* X_pred);
             P_pred = Q;
@@ -131,7 +124,6 @@ function soc = unscentedKalmanFilter(params, time, current, voltage)
                 P_pred = P_pred + Wc(i)*(X_pred(i)-soc_pred)^2;
             end
             
-            % Measurement Update
             Z_pred = params.V_ocv(X_pred) - current(k-1)*params.R0;
             z_mean = sum(Wm .* Z_pred);
             
@@ -142,7 +134,6 @@ function soc = unscentedKalmanFilter(params, time, current, voltage)
                 Pxz = Pxz + Wc(i)*(X_pred(i)-soc_pred)*(Z_pred(i)-z_mean);
             end
             
-            % Kalman Gain and Update
             K = Pxz/Pzz;
             soc(k) = soc_pred + K*(voltage(k) - z_mean);
             P = P_pred - K*Pzz*K';
@@ -156,7 +147,6 @@ function soc = unscentedKalmanFilter(params, time, current, voltage)
 end
 
 function plotResults(time, soc_ekf, soc_ukf, current, voltage)
-    % Plot estimation results
     try
         figure('Name', 'SOC Estimation Results', 'NumberTitle', 'off');
         
