@@ -1,8 +1,12 @@
 name: MATLAB Unit Tests
 
-on: [push, pull_requests]
+on: 
+	push:
+		branches: ["*"]
+ 	pull_request:
+		branches: ["*"]
 
-job:
+jobs:
 	test:
 		runs-on: ubuntu-latest
 		steps:
