@@ -1,5 +1,4 @@
 function SOC_Estimation_Robust()
-    % Clear command window and workspace
     clc;
     clear;
     
@@ -17,12 +16,10 @@ function SOC_Estimation_Robust()
         
         % Generate simulated battery data
         [time, current, voltage] = generateBatteryData(params);
-        
-        % SOC Estimation Methods
+
         [soc_ekf, P_ekf] = extendedKalmanFilter(params, time, current, voltage);
         [soc_ukf] = unscentedKalmanFilter(params, time, current, voltage);
         
-        % Plotting results
         plotResults(time, soc_ekf, soc_ukf, current, voltage);
         
     catch ME
@@ -37,12 +34,10 @@ function [time, current, voltage] = generateBatteryData(params)
         time = 0:params.Ts:params.simTime;
         n = length(time);
         
-        % Generate realistic current profile
         current = -0.1 + 0.05*randn(1,n); % Base discharge with noise
         pulse_idx = randi([1 n], 1, 15);  % Random pulse locations
         current(pulse_idx) = -1.5;        % Discharge pulses
         
-        % Calculate voltage using battery model
         soc = params.SOC_init;
         voltage = zeros(1,n);
         
