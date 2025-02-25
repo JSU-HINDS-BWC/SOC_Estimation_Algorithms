@@ -1,7 +1,7 @@
 # Contributing to This Project
 
-# See live dashboard
-<iframe src="https://goshomip.grafana.net/goto/4jPTkRpNg?orgId=1" width="100%" height="800" frameborder="0"></iframe>
+## See live dashboard
+<iframe src="https://goshomip.grafana.net/d/fee2npy0xj4sga/prs?orgId=1&from=now-30d&to=now&timezone=browser&refresh=5s&tab=queries&editPanel=4&shareView=public_dashboard" width="100%" height="800" frameborder="0"></iframe>
 
 Thank you for your interest in contributing to this project! To ensure a smooth and efficient development process, please follow the guidelines below.
 
